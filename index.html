@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HouseLearning Quiz Mode</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a; --card: #111827; --text: #e5e7eb; --muted: #94a3b8;
+      --primary: #22c55e; --primary-700: #16a34a; --accent: #60a5fa; --danger: #ef4444; --border: #1f2937;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(135deg,#0b1020,#0f172a);color:var(--text)}
+    header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(8px);z-index:10}
+    .brand{display:flex;align-items:center;gap:.75rem}
+    .logo{width:36px;height:36px;border-radius:10px;background:conic-gradient(from 180deg,#22c55e,#60a5fa,#f59e0b,#22c55e);box-shadow:0 0 24px rgba(34,197,94,.35)}
+    h1{font-size:1.2rem;margin:0}
+    .pill{display:inline-flex;gap:.5rem;align-items:center;padding:.3rem .6rem;border:1px solid var(--border);border-radius:999px;background:#0b1324;color:var(--muted)}
+    .user-info{display:flex;align-items:center;gap:.5rem}
+    .container{max-width:1200px;margin:1rem auto;padding:0 1rem;display:grid;grid-template-columns:340px 1fr;gap:1rem}
+    .card{background:linear-gradient(180deg,rgba(17,24,39,.9),rgba(17,24,39,.75));border:1px solid var(--border);border-radius:14px;padding:1rem;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .card h2{margin-top:0;font-size:.95rem;letter-spacing:.02em;color:var(--muted);font-weight:600;text-transform:uppercase}
+    label{display:block;margin-bottom:.35rem;color:var(--muted);font-size:.9rem}
+    input,select,button,textarea{width:100%;padding:.65rem .75rem;border-radius:10px;border:1px solid var(--border);background:#0b1324;color:var(--text);outline:none}
+    input::placeholder{color:#64748b}
+    button{cursor:pointer;background:var(--primary);border:none;font-weight:600;transition:transform .04s ease,background .2s ease,box-shadow .2s;box-shadow:0 8px 24px rgba(34,197,94,.25)}
+    button:hover{background:var(--primary-700)}
+    button:active{transform:scale(.98)}
+    .btn-secondary{background:#0b1324;border:1px solid var(--border);box-shadow:none}
+    .muted{color:var(--muted);font-size:.9rem}
+    .grid{display:grid;gap:.7rem}
+    .grid-2{grid-template-columns:1fr 1fr}
+    .flex{display:flex;gap:.5rem;align-items:center}
+    .space-between{display:flex;justify-content:space-between;align-items:center}
+    .hidden{display:none!important}
+    .divider{height:1px;background:var(--border);margin:.75rem 0}
+    .quiz-item{border:1px solid var(--border);border-radius:12px;padding:.75rem;background:#0b1324}
+    .options{display:grid;gap:.5rem;margin-top:.5rem}
+    .opt-btn{text-align:left;background:#0b1324;border:1px solid var(--border)}
+    .opt-btn.correct{border-color:#22c55e}
+    .opt-btn.wrong{border-color:#ef4444}
+    .leader-row{display:grid;grid-template-columns:1fr 120px 140px;gap:.5rem;padding:.5rem .25rem;border-bottom:1px dashed #1f2937}
+    /* Modal */
+    .modal{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:100}
+    .modal .sheet{width:min(520px,90vw)}
+    /* Host room panel */
+    .list{display:grid;gap:.5rem;margin-top:.5rem}
+    .player-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:10px;padding:.5rem;background:#0b1324}
+    .small{font-size:.85rem}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo"></div>
+      <h1>HouseLearning Quiz Mode</h1>
+      <span class="pill">Budget: $0</span>
+    </div>
+    <div class="user-info">
+      <button id="joinQuizTopBtn" title="Join by code">Join Quiz</button>
+      <span id="userEmail" class="muted">Not signed in</span>
+      <button id="logoutBtn" class="btn-secondary hidden">Logout</button>
+    </div>
+  </header>
+
+  <!-- Join modal -->
+  <div id="joinModal" class="modal hidden">
+    <div class="card sheet">
+      <h2>Join quiz</h2>
+      <label>Enter quiz code</label>
+      <input id="joinCodeInput" type="text" placeholder="ABC12"/>
+      <div class="flex">
+        <button id="joinConfirmBtn">Join</button>
+        <button id="joinCancelBtn" class="btn-secondary">Cancel</button>
+      </div>
+      <p id="joinFeedback" class="muted"></p>
+    </div>
+  </div>
+
+  <main class="container">
+    <!-- Left: Account + Create + Host room -->
+    <section class="card">
+      <h2>Account</h2>
+      <div class="grid" id="authSection">
+        <div class="grid">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="you@example.com" autocomplete="username"/>
+        </div>
+        <div class="grid">
+          <label>Password</label>
+          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+        </div>
+        <div class="flex">
+          <button id="loginBtn">Login</button>
+          <button id="signupBtn" class="btn-secondary">Sign up</button>
+        </div>
+        <p class="muted">Sign in to build quizzes, host rooms, and join games.</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>Create quiz</h2>
+      <div id="createSection" class="grid hidden">
+        <div class="grid">
+          <label>Quiz title</label>
+          <input id="quizTitle" type="text" placeholder="e.g., Algebra Basics"/>
+        </div>
+        <div class="grid">
+          <label>Question</label>
+          <textarea id="questionText" rows="2" placeholder="Enter your question..."></textarea>
+        </div>
+        <div class="grid grid-2">
+          <div><label>Option A</label><input id="opt0" type="text" placeholder="Option A"/></div>
+          <div><label>Option B</label><input id="opt1" type="text" placeholder="Option B"/></div>
+          <div><label>Option C</label><input id="opt2" type="text" placeholder="Option C"/></div>
+          <div><label>Option D</label><input id="opt3" type="text" placeholder="Option D"/></div>
+        </div>
+        <div class="grid">
+          <label>Correct option</label>
+          <select id="correctIndex">
+            <option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option>
+          </select>
+        </div>
+        <div class="flex">
+          <button id="addQuestionBtn">Add question</button>
+          <button id="saveQuizBtn" class="btn-secondary">Save quiz</button>
+        </div>
+        <p id="createFeedback" class="muted"></p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>Your quizzes</h2>
+      <div id="myQuizzes" class="grid"></div>
+
+      <div class="divider"></div>
+
+      <h2>Host room</h2>
+      <div id="hostSection" class="grid hidden">
+        <label>Select a quiz</label>
+        <select id="hostQuizSelect"></select>
+        <label>Game mode</label>
+        <select id="gameModeSelect">
+          <option value="classic">Classic</option>
+          <option value="gold">Gold Quest</option>
+          <option value="battle">Battle Royale</option>
+        </select>
+        <div class="flex">
+          <button id="createRoomBtn">Create room</button>
+          <button id="endRoomBtn" class="btn-secondary hidden">End room</button>
+        </div>
+        <p class="muted small">Share the code with players. You can kick players and start the game.</p>
+
+        <div id="roomInfo" class="quiz-item hidden">
+          <div class="space-between">
+            <div>
+              <div style="font-weight:700">Room code: <span id="roomCodeText"></span></div>
+              <div class="muted small">Status: <span id="roomStatusText">waiting</span> | Mode: <span id="roomModeText">classic</span></div>
+            </div>
+            <div class="flex">
+              <button id="startRoomBtn">Start game</button>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div><strong>Players</strong></div>
+          <div id="playersList" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Play local + Leaderboard (local) -->
+    <section class="card">
+      <h2>Play locally</h2>
+      <div class="grid">
+        <label>Choose quiz</label>
+        <select id="quizSelect"></select>
+        <div class="flex">
+          <button id="startQuizBtn">Start</button>
+          <button id="resetQuizBtn" class="btn-secondary">Reset</button>
+        </div>
+      </div>
+
+      <div id="playArea" class="grid hidden">
+        <div class="space-between">
+          <div class="pill">Score: <strong id="scoreVal">0</strong></div>
+          <div class="pill">Question <strong id="qIdx">0</strong>/<strong id="qTotal">0</strong></div>
+        </div>
+        <div id="questionCard" class="quiz-item">
+          <div id="questionTitle" style="font-weight:700;margin-bottom:.5rem;"></div>
+          <div id="questionTextView" class="muted"></div>
+          <div id="optionsList" class="options"></div>
+        </div>
+        <div class="flex">
+          <button id="nextBtn" class="btn-secondary">Next</button>
+          <button id="finishBtn">Finish</button>
+        </div>
+        <p id="playFeedback" class="muted"></p>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>Leaderboard</h2>
+      <div id="leaderboard" class="grid">
+        <div class="leader-row" style="font-weight:700;"><div>Player</div><div>Best score</div><div>Quiz</div></div>
+        <div id="leaderRows"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="card" style="margin:1rem auto;max-width:1200px;">
+    Blooket-style modes on Firebase. Live rooms, join codes, host controls, and Gold Quest scoring included.
+  </footer>
+
+  <!-- Firebase SDKs (compat for simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDoXSwni65CuY1_32ZE8B1nwfQO_3VNpTw",
+      authDomain: "contract-center-llc-10.firebaseapp.com",
+      projectId: "contract-center-llc-10",
+      storageBucket: "contract-center-llc-10.firebasestorage.app",
+      messagingSenderId: "323221512767",
+      appId: "1:323221512767:web:6421260f875997dbf64e8a",
+      measurementId: "G-S2RJ0C6BWH"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Elements
+    const emailEl = document.getElementById('email');
+    const passwordEl = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userEmailEl = document.getElementById('userEmail');
+
+    const createSection = document.getElementById('createSection');
+    const quizTitleEl = document.getElementById('quizTitle');
+    const questionTextEl = document.getElementById('questionText');
+    const optInputs = [document.getElementById('opt0'), document.getElementById('opt1'), document.getElementById('opt2'), document.getElementById('opt3')];
+    const correctIndexEl = document.getElementById('correctIndex');
+    const addQuestionBtn = document.getElementById('addQuestionBtn');
+    const saveQuizBtn = document.getElementById('saveQuizBtn');
+    const createFeedbackEl = document.getElementById('createFeedback');
+    const myQuizzesEl = document.getElementById('myQuizzes');
+
+    const quizSelectEl = document.getElementById('quizSelect');
+    const startQuizBtn = document.getElementById('startQuizBtn');
+    const resetQuizBtn = document.getElementById('resetQuizBtn');
+    const playAreaEl = document.getElementById('playArea');
+    const scoreValEl = document.getElementById('scoreVal');
+    const qIdxEl = document.getElementById('qIdx');
+    const qTotalEl = document.getElementById('qTotal');
+    const questionTitleEl = document.getElementById('questionTitle');
+    const questionTextViewEl = document.getElementById('questionTextView');
+    const optionsListEl = document.getElementById('optionsList');
+    const nextBtn = document.getElementById('nextBtn');
+    const finishBtn = document.getElementById('finishBtn');
+    const playFeedbackEl = document.getElementById('playFeedback');
+
+    const leaderRowsEl = document.getElementById('leaderRows');
+
+    const hostSection = document.getElementById('hostSection');
+    const hostQuizSelect = document.getElementById('hostQuizSelect');
+    const gameModeSelect = document.getElementById('gameModeSelect');
+    const createRoomBtn = document.getElementById('createRoomBtn');
+    const endRoomBtn = document.getElementById('endRoomBtn');
+    const roomInfo = document.getElementById('roomInfo');
+    const roomCodeText = document.getElementById('roomCodeText');
+    const roomStatusText = document.getElementById('roomStatusText');
+    const roomModeText = document.getElementById('roomModeText');
+    const playersList = document.getElementById('playersList');
+    const startRoomBtn = document.getElementById('startRoomBtn');
+
+    const joinQuizTopBtn = document.getElementById('joinQuizTopBtn');
+    const joinModal = document.getElementById('joinModal');
+    const joinCodeInput = document.getElementById('joinCodeInput');
+    const joinConfirmBtn = document.getElementById('joinConfirmBtn');
+    const joinCancelBtn = document.getElementById('joinCancelBtn');
+    const joinFeedback = document.getElementById('joinFeedback');
+
+    // Local state
+    let workingQuiz = { title: '', questions: [] };
+    let currentUser = null;
+    let currentQuiz = null;
+    let currentQuizQuestions = [];
+    let qIndex = 0;
+    let score = 0;
+    let selectedQuizId = null;
+
+    // Room (multiplayer) state
+    let currentRoomCode = null;
+    let roomUnsub = null; // onSnapshot unsub
+    let roomData = null;
+
+    // Auth handlers
+    loginBtn.addEventListener('click', async () => {
+      const email = emailEl.value.trim();
+      const password = passwordEl.value.trim();
+      if (!email || !password) return alert('Enter email and password.');
+      try { await auth.signInWithEmailAndPassword(email, password); } catch (e) { alert(e.message); }
+    });
+
+    signupBtn.addEventListener('click', async () => {
+      const email = emailEl.value.trim();
+      const password = passwordEl.value.trim();
+      if (!email || !password) return alert('Enter email and password.');
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection('users').doc(cred.user.uid).set({
+          email, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (e) { alert(e.message); }
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      await leaveRoomIfJoined(); // clean up room presence
+      await auth.signOut();
+    });
+
+    auth.onAuthStateChanged(async (user) => {
+      currentUser = user;
+      if (user) {
+        userEmailEl.textContent = user.email;
+        logoutBtn.classList.remove('hidden');
+        createSection.classList.remove('hidden');
+        hostSection.classList.remove('hidden');
+      } else {
+        userEmailEl.textContent = 'Not signed in';
+        logoutBtn.classList.add('hidden');
+        createSection.classList.add('hidden');
+        hostSection.classList.add('hidden');
+      }
+      refreshMyQuizzes();
+      refreshQuizList();
+      refreshHostQuizList();
+    });
+
+    // Create quiz
+    addQuestionBtn.addEventListener('click', () => {
+      const title = quizTitleEl.value.trim();
+      const qText = questionTextEl.value.trim();
+      const options = optInputs.map(i => i.value.trim());
+      const correctIndex = parseInt(correctIndexEl.value, 10);
+      if (!title) return createFeedbackEl.textContent = 'Add a quiz title.';
+      if (!qText) return createFeedbackEl.textContent = 'Add a question.';
+      if (options.some(o => !o)) return createFeedbackEl.textContent = 'Fill all options.';
+      if (correctIndex < 0 || correctIndex > 3) return createFeedbackEl.textContent = 'Pick a valid correct option.';
+      workingQuiz.title = title;
+      workingQuiz.questions.push({ text: qText, options, correctIndex });
+      questionTextEl.value = ''; optInputs.forEach(i => i.value=''); correctIndexEl.value='0';
+      createFeedbackEl.textContent = `Added question #${workingQuiz.questions.length}.`;
+    });
+
+    saveQuizBtn.addEventListener('click', async () => {
+      if (!currentUser) return alert('Sign in to save quizzes.');
+      if (!workingQuiz.title || workingQuiz.questions.length === 0) return alert('Add at least one question.');
+      try {
+        const docRef = await db.collection('quizzes').add({
+          title: workingQuiz.title, questions: workingQuiz.questions, ownerId: currentUser.uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        workingQuiz = { title: '', questions: [] }; quizTitleEl.value = ''; createFeedbackEl.textContent = 'Quiz saved!';
+        refreshMyQuizzes(); refreshQuizList(); refreshHostQuizList();
+        quizSelectEl.value = docRef.id;
+      } catch (e) { alert(e.message); }
+    });
+
+    async function refreshMyQuizzes() {
+      myQuizzesEl.innerHTML = '';
+      const qs = await db.collection('quizzes')
+        .where('ownerId', '==', currentUser ? currentUser.uid : '__none__')
+        .orderBy('createdAt', 'desc').get();
+      if (qs.empty) { myQuizzesEl.innerHTML = '<p class="muted">No quizzes yet.</p>'; return; }
+      qs.forEach(doc => {
+        const data = doc.data();
+        const el = document.createElement('div');
+        el.className = 'quiz-item';
+        el.innerHTML = `
+          <div class="space-between">
+            <div><div style="font-weight:700">${data.title}</div><div class="muted">${data.questions?.length || 0} questions</div></div>
+            <div class="flex">
+              <button class="btn-secondary" data-id="${doc.id}" data-action="preview">Preview</button>
+              <button class="btn-secondary" data-id="${doc.id}" data-action="delete">Delete</button>
+            </div>
+          </div>`;
+        el.addEventListener('click', async (evt) => {
+          const id = evt.target.getAttribute('data-id');
+          const action = evt.target.getAttribute('data-action');
+          if (!id || !action) return;
+          if (action === 'delete') { if (!confirm('Delete this quiz?')) return; await db.collection('quizzes').doc(id).delete(); refreshMyQuizzes(); refreshQuizList(); refreshHostQuizList(); }
+          if (action === 'preview') { const snap = await db.collection('quizzes').doc(id).get(); const q = snap.data(); alert(`${q.title}\n\n${q.questions.map((qq,i)=>`${i+1}. ${qq.text}`).join('\n')}`); }
+        });
+        myQuizzesEl.appendChild(el);
+      });
+    }
+
+    // Local play
+    startQuizBtn.addEventListener('click', async () => {
+      selectedQuizId = quizSelectEl.value;
+      if (!selectedQuizId) return alert('Select a quiz.');
+      const snap = await db.collection('quizzes').doc(selectedQuizId).get();
+      currentQuiz = { id: snap.id, ...snap.data() };
+      currentQuizQuestions = shuffle([...currentQuiz.questions]);
+      qIndex = 0; score = 0;
+      qTotalEl.textContent = currentQuizQuestions.length; scoreValEl.textContent = score.toString();
+      playAreaEl.classList.remove('hidden'); renderQuestion(); playFeedbackEl.textContent = 'Good luck!';
+    });
+
+    resetQuizBtn.addEventListener('click', () => {
+      selectedQuizId = null; quizSelectEl.value = '';
+      playAreaEl.classList.add('hidden'); optionsListEl.innerHTML=''; questionTextViewEl.textContent=''; questionTitleEl.textContent='';
+      playFeedbackEl.textContent=''; scoreValEl.textContent='0'; qIdxEl.textContent='0'; qTotalEl.textContent='0';
+    });
+
+    nextBtn.addEventListener('click', () => { if (!currentQuizQuestions.length) return;
+      qIndex = Math.min(qIndex + 1, currentQuizQuestions.length - 1); renderQuestion(); playFeedbackEl.textContent=''; });
+
+    finishBtn.addEventListener('click', async () => {
+      playFeedbackEl.textContent = `Finished! Score: ${score}/${currentQuizQuestions.length}.`;
+      if (currentUser && currentQuiz) {
+        const entryKey = `${currentUser.uid}_${currentQuiz.id}`;
+        const ref = db.collection('leaderboard').doc(entryKey);
+        const snap = await ref.get();
+        if (!snap.exists) {
+          await ref.set({ userId: currentUser.uid, userEmail: currentUser.email, quizId: currentQuiz.id, quizTitle: currentQuiz.title, bestScore: score, attempts: 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } else {
+          const prev = snap.data();
+          await ref.update({ bestScore: Math.max(prev.bestScore || 0, score), attempts: (prev.attempts || 0) + 1, quizTitle: currentQuiz.title, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+        loadLeaderboard();
+      }
+    });
+
+    function renderQuestion() {
+      const q = currentQuizQuestions[qIndex];
+      qIdxEl.textContent = (qIndex + 1).toString();
+      questionTitleEl.textContent = currentQuiz.title || 'Quiz';
+      questionTextViewEl.textContent = q.text;
+      optionsListEl.innerHTML = '';
+      q.options.forEach((opt, i) => {
+        const b = document.createElement('button');
+        b.className = 'opt-btn';
+        b.textContent = `${String.fromCharCode(65+i)}. ${opt}`;
+        b.addEventListener('click', () => {
+          const correct = q.correctIndex === i;
+          if (correct) { score += 1; scoreValEl.textContent = score.toString(); }
+          Array.from(optionsListEl.children).forEach((btn, idx) => { btn.classList.remove('correct','wrong'); if (idx === q.correctIndex) btn.classList.add('correct'); });
+          b.classList.add(correct ? 'correct' : 'wrong');
+          playFeedbackEl.textContent = correct ? 'Correct!' : 'Try again next time.';
+        });
+        optionsListEl.appendChild(b);
+      });
+    }
+
+    async function refreshQuizList() {
+      const qs = await db.collection('quizzes').orderBy('createdAt', 'desc').get();
+      quizSelectEl.innerHTML = `<option value="">Select a quiz...</option>`;
+      qs.forEach(doc => {
+        const data = doc.data();
+        const opt = document.createElement('option');
+        opt.value = doc.id; opt.textContent = `${data.title} (${data.questions?.length || 0} q)`;
+        quizSelectEl.appendChild(opt);
+      });
+    }
+
+    async function refreshHostQuizList() {
+      const qs = await db.collection('quizzes').orderBy('createdAt', 'desc').get();
+      hostQuizSelect.innerHTML = `<option value="">Select a quiz...</option>`;
+      qs.forEach(doc => {
+        const data = doc.data();
+        const opt = document.createElement('option');
+        opt.value = doc.id; opt.textContent = `${data.title} (${data.questions?.length || 0} q)`;
+        hostQuizSelect.appendChild(opt);
+      });
+    }
+
+    async function loadLeaderboard() {
+      leaderRowsEl.innerHTML = '';
+      const qs = await db.collection('leaderboard').orderBy('bestScore', 'desc').limit(25).get();
+      if (qs.empty) { leaderRowsEl.innerHTML = `<div class="muted" style="padding:.5rem;">No scores yet.</div>`; return; }
+      qs.forEach(doc => {
+        const d = doc.data();
+        const row = document.createElement('div');
+        row.className = 'leader-row';
+        row.innerHTML = `<div>${d.userEmail || d.userId}</div><div>${d.bestScore}</div><div>${d.quizTitle || d.quizId}</div>`;
+        leaderRowsEl.appendChild(row);
+      });
+    }
+
+    // Modal handlers (Join Quiz)
+    joinQuizTopBtn.addEventListener('click', () => { joinModal.classList.remove('hidden'); joinFeedback.textContent=''; });
+    joinCancelBtn.addEventListener('click', () => { joinModal.classList.add('hidden'); });
+    joinConfirmBtn.addEventListener('click', async () => {
+      const code = joinCodeInput.value.trim().toUpperCase();
+      if (!code) return joinFeedback.textContent = 'Enter a valid code.';
+      if (!currentUser) return joinFeedback.textContent = 'Sign in first.';
+      const roomRef = db.collection('rooms').doc(code);
+      const snap = await roomRef.get();
+      if (!snap.exists) { joinFeedback.textContent = 'Room not found.'; return; }
+      const data = snap.data();
+      if (data.status === 'finished') { joinFeedback.textContent = 'Game already finished.'; return; }
+      await roomRef.update({
+        [`players.${currentUser.uid}`]: {
+          email: currentUser.email, gold: 0, score: 0, alive: true,
+          joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }
+      });
+      currentRoomCode = code;
+      subscribeRoom(code);
+      joinModal.classList.add('hidden');
+      alert('Joined room ' + code + '. Wait for host to start.');
+    });
+
+    async function leaveRoomIfJoined() {
+      if (!currentRoomCode || !currentUser) return;
+      const roomRef = db.collection('rooms').doc(currentRoomCode);
+      try {
+        await roomRef.update({ [`players.${currentUser.uid}`]: firebase.firestore.FieldValue.delete() });
+      } catch (_) {}
+      if (roomUnsub) { roomUnsub(); roomUnsub = null; }
+      currentRoomCode = null; roomData = null;
+    }
+
+    // Host room creation
+    createRoomBtn.addEventListener('click', async () => {
+      if (!currentUser) return alert('Sign in to host.');
+      const quizId = hostQuizSelect.value;
+      const mode = gameModeSelect.value;
+      if (!quizId) return alert('Select a quiz to host.');
+      const code = Math.random().toString(36).substring(2, 7).toUpperCase();
+      await db.collection('rooms').doc(code).set({
+        hostId: currentUser.uid, quizId, mode, status: 'waiting',
+        players: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      currentRoomCode = code;
+      roomCodeText.textContent = code; roomModeText.textContent = mode; roomStatusText.textContent = 'waiting';
+      roomInfo.classList.remove('hidden'); endRoomBtn.classList.remove('hidden');
+      subscribeRoom(code);
+      alert('Room created! Code: ' + code);
+    });
+
+    endRoomBtn.addEventListener('click', async () => {
+      if (!currentRoomCode) return;
+      const roomRef = db.collection('rooms').doc(currentRoomCode);
+      await roomRef.update({ status: 'finished' });
+      if (roomUnsub) { roomUnsub(); roomUnsub = null; }
+      currentRoomCode = null; roomInfo.classList.add('hidden'); endRoomBtn.classList.add('hidden');
+      playersList.innerHTML = '';
+    });
+
+    startRoomBtn.addEventListener('click', async () => {
+      if (!currentRoomCode) return;
+      const roomRef = db.collection('rooms').doc(currentRoomCode);
+      await roomRef.update({ status: 'started', round: 1 });
+      alert('Game started!');
+    });
+
+    // Subscribe to room changes
+    function subscribeRoom(code) {
+      if (roomUnsub) roomUnsub();
+      roomUnsub = db.collection('rooms').doc(code).onSnapshot(async (snap) => {
+        if (!snap.exists) return;
+        roomData = snap.data();
+        // Update host panel UI
+        roomStatusText.textContent = roomData.status;
+        roomModeText.textContent = roomData.mode;
+        renderPlayers(roomData);
+        // If started and user is a player, pull quiz and render question by mode
+        if (roomData.status === 'started') {
+          const qSnap = await db.collection('quizzes').doc(roomData.quizId).get();
+          const quiz = qSnap.data();
+          if (quiz) driveGameLoop(roomData, quiz);
+        }
+      });
+    }
+
+    function renderPlayers(room) {
+      playersList.innerHTML = '';
+      const entries = Object.entries(room.players || {});
+      entries.forEach(([uid, info]) => {
+        const row = document.createElement('div');
+        row.className = 'player-row';
+        row.innerHTML = `
+          <div>
+            <div style="font-weight:600">${info.email || uid}</div>
+            <div class="muted small">
+              ${room.mode === 'gold' ? `Gold: ${info.gold || 0}` : room.mode === 'classic' ? `Score: ${info.score || 0}` : `Alive: ${info.alive !== false}`}
+            </div>
+          </div>
+          <div class="flex">
+            <button class="btn-secondary small" data-uid="${uid}" data-action="kick">Kick</button>
+          </div>`;
+        // Kick only visible to host
+        if (!currentUser || room.hostId !== currentUser.uid) {
+          row.querySelector('[data-action="kick"]').classList.add('hidden');
+        }
+        row.addEventListener('click', async (e) => {
+          const action = e.target.getAttribute('data-action');
+          const uid = e.target.getAttribute('data-uid');
+          if (action === 'kick' && currentUser && room.hostId === currentUser.uid) {
+            await db.collection('rooms').doc(currentRoomCode).update({
+              [`players.${uid}`]: firebase.firestore.FieldValue.delete()
+            });
+          }
+        });
+        playersList.appendChild(row);
+      });
+    }
+
+    // Game loop driver (simplified per mode)
+    let lastDrivenRound = 0;
+    async function driveGameLoop(room, quiz) {
+      // Prevent rerender for same round
+      const round = room.round || 1;
+      if (lastDrivenRound === round) return;
+      lastDrivenRound = round;
+
+      // For simplicity: everyone advances same question index = round-1
+      const qIdxRoom = Math.min(round - 1, (quiz.questions || []).length - 1);
+      const q = quiz.questions[qIdxRoom];
+      if (!q) return;
+
+      // Render a lightweight in-room question UI via alert prompts (MVP)
+      // In production, you'd render a proper room play area. Here we reuse local play card:
+      questionTitleEl.textContent = `${quiz.title} (Room ${currentRoomCode}, ${room.mode})`;
+      questionTextViewEl.textContent = q.text;
+      optionsListEl.innerHTML = '';
+      playAreaEl.classList.remove('hidden');
+      qTotalEl.textContent = (quiz.questions || []).length;
+      qIdxEl.textContent = (qIdxRoom + 1).toString();
+
+      q.options.forEach((opt, i) => {
+        const b = document.createElement('button');
+        b.className = 'opt-btn';
+        b.textContent = `${String.fromCharCode(65+i)}. ${opt}`;
+        b.addEventListener('click', async () => {
+          const correct = q.correctIndex === i;
+          // Apply mode scoring
+          if (room.mode === 'classic') {
+            await db.collection('rooms').doc(currentRoomCode).update({
+              [`players.${currentUser.uid}.score`]: firebase.firestore.FieldValue.increment(correct ? 1 : 0)
+            });
+            playFeedbackEl.textContent = correct ? 'Correct (+1 score).' : 'Wrong.';
+          } else if (room.mode === 'gold') {
+            await handleGoldAnswer(currentRoomCode, currentUser.uid, correct);
+            playFeedbackEl.textContent = correct ? 'Gold event occurred!' : 'Wrong.';
+          } else if (room.mode === 'battle') {
+            await db.collection('rooms').doc(currentRoomCode).update({
+              [`players.${currentUser.uid}.alive`]: correct ? true : false
+            });
+            playFeedbackEl.textContent = correct ? 'You survived.' : 'Eliminated.';
+          }
+          // Move to next round (host controls flow; MVP auto-advance)
+          if (currentUser && room.hostId === currentUser.uid) {
+            await db.collection('rooms').doc(currentRoomCode).update({ round: round + 1 });
+          }
+        });
+        optionsListEl.appendChild(b);
+      });
+    }
+
+    // Gold Quest helpers
+    function goldEvent() {
+      const roll = Math.random();
+      if (roll < 0.6) return { type: "gold", amount: Math.floor(Math.random()*10)+1 };
+      if (roll < 0.8) return { type: "steal" };
+      return { type: "nothing" };
+    }
+
+    async function handleGoldAnswer(roomCode, uid, correct) {
+      if (!correct) return;
+      const event = goldEvent();
+      const roomRef = db.collection("rooms").doc(roomCode);
+      if (event.type === "gold") {
+        await roomRef.update({ [`players.${uid}.gold`]: firebase.firestore.FieldValue.increment(event.amount) });
+      } else if (event.type === "steal") {
+        const snap = await roomRef.get();
+        const players = snap.data().players || {};
+        const others = Object.keys(players).filter(id => id !== uid);
+        const victimUid = others[Math.floor(Math.random() * Math.max(others.length, 1))];
+        if (victimUid) {
+          const stealAmt = Math.min(players[victimUid].gold || 0, 5);
+          await roomRef.update({
+            [`players.${uid}.gold`]: firebase.firestore.FieldValue.increment(stealAmt),
+            [`players.${victimUid}.gold`]: firebase.firestore.FieldValue.increment(-stealAmt)
+          });
+        }
+      }
+      // nothing event: no-op
+    }
+
+    // Utils
+    function shuffle(arr) { for (let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
+
+    // Initial loads
+    refreshQuizList();
+    refreshHostQuizList();
+    loadLeaderboard();
+  </script>
+</body>
+</html>
