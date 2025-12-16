@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>404 - Quiz Question Not Found!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="/cookiebanner.js"></script>
+  <script src="/feedback.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://houselearning.github.io/home/main.js"></script>
+  <style>
+    /* * Replicated Blooket-inspired Color Palette for standalone page */
+    :root {
+      --bg: #0d121c;           /* Deep dark blue */
+      --card: #1a2233;         /* Slightly lighter, saturated card background */
+      --text: #ffffff;         /* Pure white text for pop */
+      --muted: #a3b3c9;        /* Lighter muted gray/blue */
+      
+      --primary: #4CAF50;      /* Bright Green (Success/Primary Action) */
+      --primary-700: #388E3C;
+      --accent-blue: #2196F3;  /* Blue (Information/Secondary Action) */
+      --accent-orange: #FF9800; /* Orange (Highlight/Gold) */
+      --danger: #F44336;       /* Red (Danger/Wrong) */
+      --border: #334155;       /* Border color */
+      --shadow-primary: 0 8px 15px rgba(76, 175, 80, 0.4);
+      --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Global/Layout Styles */
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Inter', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(145deg, var(--bg), #080c14);
+      color:var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    /* Primary Button (Replicated for the back button) */
+    .button{
+      cursor:pointer;
+      background:var(--primary);
+      border:none;
+      font-weight:800;
+      transition:transform .1s ease, background .2s ease, box-shadow .3s;
+      box-shadow:var(--shadow-primary);
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-decoration: none; 
+      color: var(--text);
+      display: inline-block;
+      font-size: 1.2rem;
+    }
+    .button:hover{background:var(--primary-700); box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);}
+    .button:active{transform:scale(.97); box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);}
+    
+    /* 404 Specific Styles */
+    .error-container {
+        max-width: 600px;
+        padding: 2rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: var(--shadow-card);
+    }
+    .error-container h1 {
+      font-size: 8rem;
+      font-weight: 900;
+      color: var(--danger); /* Red for error */
+      text-shadow: 0 0 20px rgba(244, 67, 54, 0.8);
+      animation: pulse-404 1.5s infinite alternate;
+      line-height: 1;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    @keyframes pulse-404 {
+      from { transform: scale(1); opacity: 1; }
+      to { transform: scale(1.05); opacity: 0.8; }
+    }
+
+    .error-container h2 {
+      font-size: 2.5rem;
+      margin: 0;
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .error-container p {
+      font-size: 1.2rem;
+      color: var(--muted);
+      margin: 1.5rem 0 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container">
+    <h1>404</h1>
+    <h2>Quiz Question Not Found!</h2>
+    <p>
+      It seems you've wandered off the map. The page you requested might be a question that hasn't been written yet, or the answer was simply incorrect.
+    </p>
+    <a href="/quiz" class="button">Go Back to the Main Lobby</a>
+  </div>
+</body>
+</html>
