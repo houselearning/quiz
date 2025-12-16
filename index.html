@@ -82,12 +82,12 @@
     
     /* Main Container and Cards */
     .container{
-      max-width:1300px; /* Slightly wider */
-      margin:1.5rem auto;
+      max-width:1300px;
+      margin:1.75rem auto;
       padding:0 1.5rem;
       display:grid;
-      grid-template-columns:380px 1fr; /* Widen left column */
-      gap:1.5rem;
+      grid-template-columns:240px 1fr; /* sidebar + content */
+      gap:1.75rem;
     }
     .card{
       background:var(--card);
@@ -215,65 +215,59 @@
     /* Modal (Keep clean) */
     .modal .sheet{width:min(520px,90vw)}
     
-    /* Footer */
-    footer{
-      background: var(--card);
-      border-radius: 18px;
-      padding: 1rem 1.5rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      text-align: center;
-      color: var(--muted);
-      margin-top: 2rem !important;
+    /* Sidebar (new) */
+    .side-nav {
+      width: 240px;
+      background: linear-gradient(180deg, rgba(26,34,51,0.95), rgba(26,34,51,0.95));
+      border-right: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 0 18px 18px 0;
+      position:sticky;
+      top: calc(1.25rem + 1px); /* respect header spacing */
+      height: calc(100vh - 2.5rem);
+      overflow:auto;
+      box-shadow: var(--shadow-card);
+    }
+    .side-nav .nav-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem}
+    .side-nav .nav-item{
+      display:flex;flex-direction:column;
+      background:transparent;border-radius:10px;padding:.5rem;
+      color:var(--text);cursor:pointer;border:1px solid transparent;
+    }
+    .side-nav .nav-item > .nav-link{
+      display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.45rem .6rem;
+      font-weight:700;color:var(--muted);
+    }
+    .side-nav .nav-item:hover{ background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.02); }
+    .side-nav .nav-item.open > .nav-link{ color:var(--text); background: rgba(255,255,255,0.02); }
+    .side-nav .submenu{
+      max-height:0; overflow:hidden; transition: max-height .32s ease, padding .2s;
+      padding:0 .5rem;
+    }
+    .side-nav .submenu.open{
+      padding:.5rem;
+      max-height:380px;
+    }
+    .side-nav .submenu button{
+      width:100%;text-align:left;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--border);
+      background:var(--card);margin-bottom:.4rem;font-weight:700;color:var(--text);
     }
 
-    /* Overlay shown when signed out (covers everything except header) */
-    #authOverlay{
-      position:fixed;
-      left:0;
-      right:0;
-      top:0; /* adjusted in JS to start below header */
-      bottom:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:50;
-      pointer-events:auto;
+    /* Reduce cramped feeling: give main column more padding & update container columns */
+    .container{
+      max-width:1300px;
+      margin:1.75rem auto;
+      padding:0 1.5rem;
+      display:grid;
+      grid-template-columns:240px 1fr; /* sidebar + content */
+      gap:1.75rem;
     }
-    #authOverlay.show{
-      display:flex;
-    }
-    #authOverlay .panel{
-      margin-top:0;
-      background: rgba(13,18,28,0.55);
-      backdrop-filter: blur(8px);
-      border-radius: 12px;
-      padding: 2rem;
-      text-align:center;
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,0.04);
-      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
-    }
-    #authOverlay .panel p{font-size:1.25rem;margin:0 0 1rem}
-    #authOverlay .panel .muted{opacity:0.85;margin-bottom:1rem}
 
-    /* Light theme overrides */
-    body.light {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #0b1220;
-      --muted: #5b6b7a;
-      --primary: #1e8b3a;
-      --primary-700: #16692b;
-      --accent-blue: #0b79d0;
-      --accent-orange: #d97706;
-      --danger: #d23b2b;
-      --border: #e6eef8;
-      --shadow-primary: 0 6px 12px rgba(30,139,58,0.08);
-      --shadow-card: 0 6px 18px rgba(11,18,32,0.06);
-    }
-    body.light header{ background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85)); color:var(--text); }
-    body.light .pill { background: #f3faf2; color:var(--primary); border-color: var(--border); }
+    /* Ensure existing cards take full width of content column */
+    .container > section.card{ width:100%; }
+
+    /* Make sure overlay respects sidebar/spacing (no change if active) */
+    /* ...existing code... */
   </style>
 </head>
 <body>
@@ -318,6 +312,50 @@
       <p id="joinFeedback" class="muted"></p>
     </div>
   </div>
+
+  <!-- Added side navbar -->
+  <aside class="side-nav" aria-label="Main navigation">
+    <ul class="nav-list">
+      <li class="nav-item" data-target="createSection">
+        <div class="nav-link"><span>✏️ Create quiz</span><span>▸</span></div>
+        <div class="submenu">
+          <button data-action="goto" data-target="createSection">Open Create</button>
+          <button data-action="goto" data-target="myQuizzes">My Quizzes</button>
+        </div>
+      </li>
+
+      <li class="nav-item" data-target="hostSection">
+        <div class="nav-link"><span>👨‍🏫 Host room</span><span>▸</span></div>
+        <div class="submenu">
+          <button data-action="goto" data-target="hostSection">Host Controls</button>
+          <button data-action="goto" data-target="roomInfo">Room Info</button>
+        </div>
+      </li>
+
+      <li class="nav-item" data-target="playArea">
+        <div class="nav-link"><span>🎮 Play</span><span>▸</span></div>
+        <div class="submenu">
+          <button data-action="goto" data-target="playArea">Play locally</button>
+          <button data-action="goto" data-target="quizSelect">Choose Quiz</button>
+        </div>
+      </li>
+
+      <li class="nav-item" data-target="leaderboard">
+        <div class="nav-link"><span>🏆 Leaderboard</span><span>▸</span></div>
+        <div class="submenu">
+          <button data-action="goto" data-target="leaderboard">View Leaderboard</button>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <div class="nav-link"><span>⚙️ Settings</span><span>▸</span></div>
+        <div class="submenu">
+          <button id="themeToggleSideBtn">Toggle theme</button>
+          <button id="signOutSideBtn">Sign out</button>
+        </div>
+      </li>
+    </ul>
+  </aside>
 
   <main class="container">
     <section class="card">
@@ -448,9 +486,8 @@
     </section>
   </main>
 
-  <footer class="card" style="margin:1rem auto;max-width:1300px;">
-    Blooket-style modes on Firebase. Live rooms, join codes, host controls, and Gold Quest scoring included.
-  </footer>
+  <!-- Footer removed as requested -->
+  <!-- ...existing code... (footer block removed) ... -->
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -678,7 +715,8 @@
       try {
         const docRef = await db.collection('quizzes').add({
           title: workingQuiz.title, questions: workingQuiz.questions, ownerId: currentUser.uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          // use a concrete Timestamp instead of FieldValue.serverTimestamp()
+          createdAt: firebase.firestore.Timestamp.now()
         });
         workingQuiz = { title: '', questions: [] }; quizTitleEl.value = ''; createFeedbackEl.textContent = 'Quiz saved!';
         refreshMyQuizzes(); refreshQuizList(); refreshHostQuizList();
@@ -743,10 +781,10 @@
         const ref = db.collection('leaderboard').doc(entryKey);
         const snap = await ref.get();
         if (!snap.exists) {
-          await ref.set({ userId: currentUser.uid, userEmail: currentUser.email, quizId: currentQuiz.id, quizTitle: currentQuiz.title, bestScore: score, attempts: 1, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+          await ref.set({ userId: currentUser.uid, userEmail: currentUser.email, quizId: currentQuiz.id, quizTitle: currentQuiz.title, bestScore: score, attempts: 1, updatedAt: firebase.firestore.Timestamp.now() });
         } else {
           const prev = snap.data();
-          await ref.update({ bestScore: Math.max(prev.bestScore || 0, score), attempts: (prev.attempts || 0) + 1, quizTitle: currentQuiz.title, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+          await ref.update({ bestScore: Math.max(prev.bestScore || 0, score), attempts: (prev.attempts || 0) + 1, quizTitle: currentQuiz.title, updatedAt: firebase.firestore.Timestamp.now() });
         }
         loadLeaderboard();
       }
@@ -823,7 +861,8 @@
       await roomRef.update({
         [`players.${currentUser.uid}`]: {
           email: currentUser.email, gold: 0, score: 0, alive: true,
-          joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+          // avoid FieldValue.serverTimestamp()
+          joinedAt: firebase.firestore.Timestamp.now()
         }
       });
       currentRoomCode = code;
@@ -851,7 +890,7 @@
       const code = Math.random().toString(36).substring(2, 7).toUpperCase();
       await db.collection('rooms').doc(code).set({
         hostId: currentUser.uid, quizId, mode, status: 'waiting',
-        players: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        players: {}, createdAt: firebase.firestore.Timestamp.now()
       });
       currentRoomCode = code;
       roomCodeText.textContent = code; roomModeText.textContent = mode; roomStatusText.textContent = 'waiting';
@@ -1017,6 +1056,46 @@
     refreshQuizList();
     refreshHostQuizList();
     loadLeaderboard();
+
+    // Side nav interactions (toggle dropdowns and smooth goto)
+    (function(){
+      const navItems = document.querySelectorAll('.side-nav .nav-item');
+      navItems.forEach(item => {
+        const link = item.querySelector('.nav-link');
+        const submenu = item.querySelector('.submenu');
+        link.addEventListener('click', () => {
+          const isOpen = item.classList.toggle('open');
+          if (submenu) submenu.classList.toggle('open', isOpen);
+        });
+      });
+
+      // handle submenu button actions (smooth scroll / show sections)
+      document.querySelector('.side-nav').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action="goto"]');
+        if (!btn) return;
+        const targetId = btn.getAttribute('data-target');
+        const el = document.getElementById(targetId);
+        if (el) {
+          el.scrollIntoView({behavior:'smooth', block:'start'});
+          // briefly pulse target to draw attention
+          el.animate([{boxShadow:'0 0 0 rgba(0,0,0,0)'},{boxShadow:'0 0 20px rgba(255,160,80,0.18)'}],{duration:400,iterations:1});
+        }
+      });
+
+      // hook theme toggle in sidebar to existing theme function
+      const themeSideBtn = document.getElementById('themeToggleSideBtn');
+      if (themeSideBtn) themeSideBtn.addEventListener('click', () => {
+        const next = document.body.classList.contains('light') ? 'dark' : 'light';
+        applyTheme(next);
+      });
+
+      // sign out button in sidebar
+      const signOutSideBtn = document.getElementById('signOutSideBtn');
+      if (signOutSideBtn) signOutSideBtn.addEventListener('click', async () => {
+        await leaveRoomIfJoined();
+        await auth.signOut();
+      });
+    })();
   </script>
 </body>
 </html>
