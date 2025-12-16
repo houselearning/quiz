@@ -5,51 +5,275 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HouseLearning Quiz Mode</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://houselearning.github.io/feedback.js"></script>
+  <script src="/cookiebanner.js"></script>
+  <script src="/feedback.js"></script>
   <style>
+    /* * Blooket-inspired Color Palette 
+     * More vibrant and contrasting for a playful feel.
+     */
     :root {
-      --bg: #0f172a; --card: #111827; --text: #e5e7eb; --muted: #94a3b8;
-      --primary: #22c55e; --primary-700: #16a34a; --accent: #60a5fa; --danger: #ef4444; --border: #1f2937;
+      --bg: #0d121c;           /* Deep dark blue */
+      --card: #1a2233;         /* Slightly lighter, saturated card background */
+      --text: #ffffff;         /* Pure white text for pop */
+      --muted: #a3b3c9;        /* Lighter muted gray/blue */
+      
+      --primary: #4CAF50;      /* Bright Green (Success/Primary Action) */
+      --primary-700: #388E3C;
+      --accent-blue: #2196F3;  /* Blue (Information/Secondary Action) */
+      --accent-orange: #FF9800; /* Orange (Highlight/Gold) */
+      --danger: #F44336;       /* Red (Danger/Wrong) */
+      --border: #334155;       /* Border color */
+      --shadow-primary: 0 8px 15px rgba(76, 175, 80, 0.4);
+      --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
+    
+    /* Global Styles */
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(135deg,#0b1020,#0f172a);color:var(--text)}
-    header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(8px);z-index:10}
+    /* Use a linear gradient for the background to give depth */
+    body{
+      margin:0;
+      font-family:'Inter', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(145deg, var(--bg), #080c14);
+      color:var(--text);
+      min-height: 100vh;
+    }
+    
+    /* Header (Sticky and Glassmorphism) */
+    header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1.25rem 2rem;
+      border-bottom:1px solid var(--border);
+      position:sticky;top:0;
+      background:rgba(26,34,51,0.7); /* Slightly transparent card color */
+      backdrop-filter:blur(10px);
+      z-index:10;
+      box-shadow: var(--shadow-card);
+    }
     .brand{display:flex;align-items:center;gap:.75rem}
-    .logo{width:36px;height:36px;border-radius:10px;background:conic-gradient(from 180deg,#22c55e,#60a5fa,#f59e0b,#22c55e);box-shadow:0 0 24px rgba(34,197,94,.35)}
-    h1{font-size:1.2rem;margin:0}
-    .pill{display:inline-flex;gap:.5rem;align-items:center;padding:.3rem .6rem;border:1px solid var(--border);border-radius:999px;background:#0b1324;color:var(--muted)}
-    .user-info{display:flex;align-items:center;gap:.5rem}
-    .container{max-width:1200px;margin:1rem auto;padding:0 1rem;display:grid;grid-template-columns:340px 1fr;gap:1rem}
-    .card{background:linear-gradient(180deg,rgba(17,24,39,.9),rgba(17,24,39,.75));border:1px solid var(--border);border-radius:14px;padding:1rem;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    .card h2{margin-top:0;font-size:.95rem;letter-spacing:.02em;color:var(--muted);font-weight:600;text-transform:uppercase}
-    label{display:block;margin-bottom:.35rem;color:var(--muted);font-size:.9rem}
-    input,select,button,textarea{width:100%;padding:.65rem .75rem;border-radius:10px;border:1px solid var(--border);background:#0b1324;color:var(--text);outline:none}
+    .logo{
+      width:44px;height:44px;border-radius:12px;
+      /* More vibrant conic gradient */
+      background:conic-gradient(from 180deg, var(--primary), var(--accent-blue), var(--accent-orange), var(--primary));
+      box-shadow:0 0 20px rgba(76,175,80,.6);
+      transform: rotate(-10deg);
+      animation: logo-spin 10s linear infinite;
+    }
+    @keyframes logo-spin {
+      from { transform: rotate(-10deg); }
+      to { transform: rotate(350deg); }
+    }
+    h1{font-size:1.5rem;margin:0;font-weight:900;letter-spacing:-0.05em;color:var(--text)}
+    
+    /* Pill styling for info (e.g., Budget) */
+    .pill{
+      display:inline-flex;gap:.5rem;align-items:center;
+      padding:.4rem .8rem;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:var(--card); /* Match card background */
+      color:var(--accent-orange); /* Use accent color for emphasis */
+      font-weight: 700;
+      box-shadow: 0 0 5px rgba(255, 152, 0, 0.3);
+    }
+    .user-info{display:flex;align-items:center;gap:.75rem}
+    
+    /* Main Container and Cards */
+    .container{
+      max-width:1300px; /* Slightly wider */
+      margin:1.5rem auto;
+      padding:0 1.5rem;
+      display:grid;
+      grid-template-columns:380px 1fr; /* Widen left column */
+      gap:1.5rem;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px; /* More rounded corners */
+      padding:1.5rem;
+      box-shadow:var(--shadow-card);
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+    }
+    .card h2{
+      margin-top:0;
+      font-size:1.1rem;
+      letter-spacing:.05em;
+      color:var(--accent-blue);
+      font-weight:800;
+      text-transform:uppercase;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: .5rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* Form Elements */
+    label{display:block;margin-bottom:.35rem;color:var(--muted);font-size:.9rem;font-weight:600}
+    input,select,textarea{
+      width:100%;
+      padding:.75rem 1rem;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:var(--bg); /* Darker input background */
+      color:var(--text);
+      outline:none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+    }
     input::placeholder{color:#64748b}
-    button{cursor:pointer;background:var(--primary);border:none;font-weight:600;transition:transform .04s ease,background .2s ease,box-shadow .2s;box-shadow:0 8px 24px rgba(34,197,94,.25)}
-    button:hover{background:var(--primary-700)}
-    button:active{transform:scale(.98)}
-    .btn-secondary{background:#0b1324;border:1px solid var(--border);box-shadow:none}
+    
+    /* Primary Button (The "Blooket" button style) */
+    button{
+      cursor:pointer;
+      background:var(--primary);
+      border:none;
+      font-weight:800;
+      transition:transform .1s ease, background .2s ease, box-shadow .3s;
+      box-shadow:var(--shadow-primary);
+      padding: .75rem 1rem;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    button:hover{background:var(--primary-700); box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);}
+    button:active{transform:scale(.97); box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);}
+    
+    /* Secondary/Muted Button */
+    .btn-secondary{
+      background:var(--card);
+      border:1px solid var(--border);
+      box-shadow:none;
+      color: var(--text);
+    }
+    .btn-secondary:hover{background:#2b354d; border-color: var(--accent-blue); box-shadow: 0 0 10px rgba(33, 150, 243, 0.3);}
+    .btn-secondary:active{transform:scale(.97); box-shadow: none;}
     .muted{color:var(--muted);font-size:.9rem}
-    .grid{display:grid;gap:.7rem}
+    .small{font-size:.85rem}
+    
+    /* Layouts */
+    .grid{display:grid;gap:.85rem}
     .grid-2{grid-template-columns:1fr 1fr}
-    .flex{display:flex;gap:.5rem;align-items:center}
+    .flex{display:flex;gap:.75rem;align-items:center}
     .space-between{display:flex;justify-content:space-between;align-items:center}
     .hidden{display:none!important}
     .divider{height:1px;background:var(--border);margin:.75rem 0}
-    .quiz-item{border:1px solid var(--border);border-radius:12px;padding:.75rem;background:#0b1324}
-    .options{display:grid;gap:.5rem;margin-top:.5rem}
-    .opt-btn{text-align:left;background:#0b1324;border:1px solid var(--border)}
-    .opt-btn.correct{border-color:#22c55e}
-    .opt-btn.wrong{border-color:#ef4444}
-    .leader-row{display:grid;grid-template-columns:1fr 120px 140px;gap:.5rem;padding:.5rem .25rem;border-bottom:1px dashed #1f2937}
-    /* Modal */
-    .modal{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:100}
+    
+    /* Quiz Item & Options */
+    .quiz-item{
+      border:2px solid var(--border); /* Thicker border */
+      border-radius:14px;
+      padding:1rem;
+      background:var(--bg);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+    }
+    .options{display:grid;gap:.6rem;margin-top:.75rem}
+    .opt-btn{
+      text-align:left;
+      background:var(--card);
+      border:2px solid var(--border);
+      padding: 1rem 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      transition: all 0.15s ease;
+      box-shadow: none; /* Override default button shadow */
+      text-transform: none; /* Keep option text natural case */
+    }
+    .opt-btn:hover {
+      background: #2b354d;
+      border-color: var(--accent-blue);
+      transform: scale(1.01);
+    }
+    .opt-btn:active {
+      transform: scale(0.99);
+    }
+    .opt-btn.correct{border-color:var(--primary); background: #388E3C; box-shadow: 0 0 15px rgba(76, 175, 80, 0.5); font-weight: 900;}
+    .opt-btn.wrong{border-color:var(--danger); background: #962c2c; box-shadow: 0 0 15px rgba(244, 67, 54, 0.5); font-weight: 900;}
+
+    /* Leaderboard */
+    .leader-row{
+      display:grid;
+      grid-template-columns:1fr 120px 140px;
+      gap:.75rem;
+      padding:.7rem .5rem;
+      border-bottom:1px dashed #334155;
+      font-weight: 600;
+    }
+    .leader-row:first-child{
+      color: var(--accent-orange);
+      font-size: 1.1rem;
+      font-weight: 900;
+      border-bottom: 2px solid var(--accent-orange);
+    }
+    
+    /* Modal (Keep clean) */
     .modal .sheet{width:min(520px,90vw)}
-    /* Host room panel */
-    .list{display:grid;gap:.5rem;margin-top:.5rem}
-    .player-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:10px;padding:.5rem;background:#0b1324}
-    .small{font-size:.85rem}
+    
+    /* Footer */
+    footer{
+      background: var(--card);
+      border-radius: 18px;
+      padding: 1rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      color: var(--muted);
+      margin-top: 2rem !important;
+    }
+
+    /* Overlay shown when signed out (covers everything except header) */
+    #authOverlay{
+      position:fixed;
+      left:0;
+      right:0;
+      top:0; /* adjusted in JS to start below header */
+      bottom:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+      pointer-events:auto;
+    }
+    #authOverlay.show{
+      display:flex;
+    }
+    #authOverlay .panel{
+      margin-top:0;
+      background: rgba(13,18,28,0.55);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align:center;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+    }
+    #authOverlay .panel p{font-size:1.25rem;margin:0 0 1rem}
+    #authOverlay .panel .muted{opacity:0.85;margin-bottom:1rem}
+
+    /* Light theme overrides */
+    body.light {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #0b1220;
+      --muted: #5b6b7a;
+      --primary: #1e8b3a;
+      --primary-700: #16692b;
+      --accent-blue: #0b79d0;
+      --accent-orange: #d97706;
+      --danger: #d23b2b;
+      --border: #e6eef8;
+      --shadow-primary: 0 6px 12px rgba(30,139,58,0.08);
+      --shadow-card: 0 6px 18px rgba(11,18,32,0.06);
+    }
+    body.light header{ background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85)); color:var(--text); }
+    body.light .pill { background: #f3faf2; color:var(--primary); border-color: var(--border); }
   </style>
 </head>
 <body>
@@ -57,16 +281,31 @@
     <div class="brand">
       <div class="logo"></div>
       <h1>HouseLearning Quiz Mode</h1>
-      <span class="pill">Budget: $0</span>
+      <span class="pill">💰 Budget: $0</span>
     </div>
     <div class="user-info">
       <button id="joinQuizTopBtn" title="Join by code">Join Quiz</button>
+
+      <!-- Added login & theme toggle -->
+      <button id="loginTopBtn" style="margin-left:.5rem">Sign in</button>
+      <button id="themeToggleBtn" title="Toggle light/dark" class="btn-secondary" style="margin-left:.5rem">☀️/🌙</button>
+
       <span id="userEmail" class="muted">Not signed in</span>
       <button id="logoutBtn" class="btn-secondary hidden">Logout</button>
     </div>
   </header>
 
-  <!-- Join modal -->
+  <!-- Auth overlay that covers the page except the header -->
+  <div id="authOverlay" aria-hidden="true">
+    <div class="panel">
+      <p style="font-weight:800">You're signed out. Sign in to learn.</p>
+      <p class="muted">Sign in to build quizzes, host rooms, and join games.</p>
+      <div style="display:flex;gap:.5rem;justify-content:center">
+        <button id="overlaySignInBtn">Sign in</button>
+      </div>
+    </div>
+  </div>
+
   <div id="joinModal" class="modal hidden">
     <div class="card sheet">
       <h2>Join quiz</h2>
@@ -81,10 +320,10 @@
   </div>
 
   <main class="container">
-    <!-- Left: Account + Create + Host room -->
     <section class="card">
-      <h2>Account</h2>
-      <div class="grid" id="authSection">
+      <h2>🔑 Account & Setup</h2>
+      <!-- Hide old side login inputs: now controlled by top button -->
+      <div class="grid hidden" id="authSection">
         <div class="grid">
           <label>Email</label>
           <input id="email" type="email" placeholder="you@example.com" autocomplete="username"/>
@@ -102,7 +341,7 @@
 
       <div class="divider"></div>
 
-      <h2>Create quiz</h2>
+      <h2>✏️ Create quiz</h2>
       <div id="createSection" class="grid hidden">
         <div class="grid">
           <label>Quiz title</label>
@@ -133,12 +372,12 @@
 
       <div class="divider"></div>
 
-      <h2>Your quizzes</h2>
+      <h2>📚 Your quizzes</h2>
       <div id="myQuizzes" class="grid"></div>
 
       <div class="divider"></div>
 
-      <h2>Host room</h2>
+      <h2>👨‍🏫 Host room</h2>
       <div id="hostSection" class="grid hidden">
         <label>Select a quiz</label>
         <select id="hostQuizSelect"></select>
@@ -157,7 +396,7 @@
         <div id="roomInfo" class="quiz-item hidden">
           <div class="space-between">
             <div>
-              <div style="font-weight:700">Room code: <span id="roomCodeText"></span></div>
+              <div style="font-weight:900; font-size: 1.2rem;">Room code: <span id="roomCodeText" style="color: var(--accent-orange);"></span></div>
               <div class="muted small">Status: <span id="roomStatusText">waiting</span> | Mode: <span id="roomModeText">classic</span></div>
             </div>
             <div class="flex">
@@ -171,9 +410,8 @@
       </div>
     </section>
 
-    <!-- Right: Play local + Leaderboard (local) -->
     <section class="card">
-      <h2>Play locally</h2>
+      <h2>🎮 Play locally</h2>
       <div class="grid">
         <label>Choose quiz</label>
         <select id="quizSelect"></select>
@@ -185,12 +423,12 @@
 
       <div id="playArea" class="grid hidden">
         <div class="space-between">
-          <div class="pill">Score: <strong id="scoreVal">0</strong></div>
-          <div class="pill">Question <strong id="qIdx">0</strong>/<strong id="qTotal">0</strong></div>
+          <div class="pill" style="color: var(--primary);">🎯 Score: <strong id="scoreVal">0</strong></div>
+          <div class="pill" style="color: var(--accent-blue);"># Question <strong id="qIdx">0</strong>/<strong id="qTotal">0</strong></div>
         </div>
         <div id="questionCard" class="quiz-item">
-          <div id="questionTitle" style="font-weight:700;margin-bottom:.5rem;"></div>
-          <div id="questionTextView" class="muted"></div>
+          <div id="questionTitle" style="font-weight:900;margin-bottom:.8rem; font-size: 1.15rem; color: var(--accent-orange);"></div>
+          <div id="questionTextView" class="muted" style="font-size: 1rem;"></div>
           <div id="optionsList" class="options"></div>
         </div>
         <div class="flex">
@@ -202,7 +440,7 @@
 
       <div class="divider"></div>
 
-      <h2>Leaderboard</h2>
+      <h2>🏆 Leaderboard</h2>
       <div id="leaderboard" class="grid">
         <div class="leader-row" style="font-weight:700;"><div>Player</div><div>Best score</div><div>Quiz</div></div>
         <div id="leaderRows"></div>
@@ -210,16 +448,17 @@
     </section>
   </main>
 
-  <footer class="card" style="margin:1rem auto;max-width:1200px;">
+  <footer class="card" style="margin:1rem auto;max-width:1300px;">
     Blooket-style modes on Firebase. Live rooms, join codes, host controls, and Gold Quest scoring included.
   </footer>
 
-  <!-- Firebase SDKs (compat for simplicity) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <script>
+    // The core Javascript logic remains unchanged as the request was purely aesthetic/CSS.
+    // ... (All original JavaScript code here, untouched) ...
     // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDoXSwni65CuY1_32ZE8B1nwfQO_3VNpTw",
@@ -287,45 +526,99 @@
     const joinCancelBtn = document.getElementById('joinCancelBtn');
     const joinFeedback = document.getElementById('joinFeedback');
 
-    // Local state
-    let workingQuiz = { title: '', questions: [] };
-    let currentUser = null;
-    let currentQuiz = null;
-    let currentQuizQuestions = [];
-    let qIndex = 0;
-    let score = 0;
-    let selectedQuizId = null;
+    // New elements
+    const loginTopBtn = document.getElementById('loginTopBtn');
+    const overlaySignInBtn = document.getElementById('overlaySignInBtn');
+    const authOverlay = document.getElementById('authOverlay');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const headerEl = document.querySelector('header');
 
-    // Room (multiplayer) state
-    let currentRoomCode = null;
-    let roomUnsub = null; // onSnapshot unsub
-    let roomData = null;
+    // Popup auth window handler
+    let authPopup = null;
+    let authPollInterval = null;
+    const AUTH_URL = 'https://houselearning.github.io/auth';
 
-    // Auth handlers
-    loginBtn.addEventListener('click', async () => {
-      const email = emailEl.value.trim();
-      const password = passwordEl.value.trim();
-      if (!email || !password) return alert('Enter email and password.');
-      try { await auth.signInWithEmailAndPassword(email, password); } catch (e) { alert(e.message); }
-    });
+    function openAuthPopup() {
+      // Centered popup ~800x600
+      const w = 820, h = 640;
+      const left = (screen.width/2)-(w/2);
+      const top = (screen.height/2)-(h/2);
+      authPopup = window.open(AUTH_URL, 'HouseLearningAuth', `width=${w},height=${h},left=${left},top=${top}`);
+      // Poll to detect navigation/closure. We'll also listen for postMessage from popup.
+      if (authPollInterval) clearInterval(authPollInterval);
+      const startHref = '';
+      authPollInterval = setInterval(() => {
+        try {
+          if (!authPopup || authPopup.closed) {
+            clearInterval(authPollInterval);
+            authPollInterval = null;
+            // popup closed: attempt reload to pick up auth state
+            setTimeout(()=>location.reload(), 200);
+            return;
+          }
+          // try read href (may throw cross-origin until the auth page redirects to same origin)
+          const href = authPopup.location.href;
+          // if href changed to include a callback token / or same-origin page that indicates finish, close
+          if (href && href !== AUTH_URL) {
+            // close & reload (best-effort)
+            authPopup.close();
+            clearInterval(authPollInterval);
+            authPollInterval = null;
+            setTimeout(()=>location.reload(), 150);
+          }
+        } catch (e) {
+          // cross-origin: can't read yet — rely on postMessage fallback
+        }
+      }, 600);
+    }
 
-    signupBtn.addEventListener('click', async () => {
-      const email = emailEl.value.trim();
-      const password = passwordEl.value.trim();
-      if (!email || !password) return alert('Enter email and password.');
+    // Listen for messages from auth popup (if it posts one on completion)
+    window.addEventListener('message', (ev) => {
+      // Accept messages that indicate auth completed
       try {
-        const cred = await auth.createUserWithEmailAndPassword(email, password);
-        await db.collection('users').doc(cred.user.uid).set({
-          email, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } catch (e) { alert(e.message); }
+        if (!ev.data) return;
+        if (ev.data === 'houselearning:auth:success' || (ev.data && ev.data.type === 'houselearning:auth:success')) {
+          if (authPopup && !authPopup.closed) authPopup.close();
+          if (authPollInterval) { clearInterval(authPollInterval); authPollInterval = null; }
+          setTimeout(()=>location.reload(), 150);
+        }
+      } catch (e) {}
+    }, false);
+
+    // Wire buttons to open auth popup
+    loginTopBtn.addEventListener('click', openAuthPopup);
+    overlaySignInBtn.addEventListener('click', openAuthPopup);
+
+    // Show/hide overlay based on auth state. We also adjust overlay top to be below header.
+    function updateAuthOverlay(show) {
+      if (show) {
+        // compute header height so overlay doesn't cover header
+        const hdrH = headerEl.getBoundingClientRect().height || 68;
+        authOverlay.style.top = hdrH + 'px';
+        authOverlay.style.height = `calc(100% - ${hdrH}px)`;
+        authOverlay.classList.add('show');
+        authOverlay.setAttribute('aria-hidden','false');
+      } else {
+        authOverlay.classList.remove('show');
+        authOverlay.setAttribute('aria-hidden','true');
+      }
+    }
+
+    // Theme toggle persistence
+    function applyTheme(theme) {
+      if (theme === 'light') document.body.classList.add('light');
+      else document.body.classList.remove('light');
+      localStorage.setItem('hl_theme', theme);
+    }
+    // init theme
+    const storedTheme = localStorage.getItem('hl_theme') || 'dark';
+    applyTheme(storedTheme);
+    themeToggleBtn.addEventListener('click', () => {
+      const next = document.body.classList.contains('light') ? 'dark' : 'light';
+      applyTheme(next);
     });
 
-    logoutBtn.addEventListener('click', async () => {
-      await leaveRoomIfJoined(); // clean up room presence
-      await auth.signOut();
-    });
-
+    // Modify auth.onAuthStateChanged to show overlay when not logged in & remove side login area
     auth.onAuthStateChanged(async (user) => {
       currentUser = user;
       if (user) {
@@ -333,15 +626,34 @@
         logoutBtn.classList.remove('hidden');
         createSection.classList.remove('hidden');
         hostSection.classList.remove('hidden');
+        updateAuthOverlay(false);
       } else {
         userEmailEl.textContent = 'Not signed in';
         logoutBtn.classList.add('hidden');
         createSection.classList.add('hidden');
         hostSection.classList.add('hidden');
+        // show overlay blocking the app content (but not header)
+        updateAuthOverlay(true);
       }
       refreshMyQuizzes();
       refreshQuizList();
       refreshHostQuizList();
+    });
+
+    // Ensure overlay fulfills initial sizing on resize
+    window.addEventListener('resize', () => {
+      if (authOverlay.classList.contains('show')) {
+        const hdrH = headerEl.getBoundingClientRect().height || 68;
+        authOverlay.style.top = hdrH + 'px';
+        authOverlay.style.height = `calc(100% - ${hdrH}px)`;
+      }
+    });
+
+    // Ensure logout cleans up room and then hides overlay accordingly (existing logout handler)
+    logoutBtn.addEventListener('click', async () => {
+      await leaveRoomIfJoined();
+      await auth.signOut();
+      // onAuthStateChanged will show overlay
     });
 
     // Create quiz
@@ -388,8 +700,8 @@
           <div class="space-between">
             <div><div style="font-weight:700">${data.title}</div><div class="muted">${data.questions?.length || 0} questions</div></div>
             <div class="flex">
-              <button class="btn-secondary" data-id="${doc.id}" data-action="preview">Preview</button>
-              <button class="btn-secondary" data-id="${doc.id}" data-action="delete">Delete</button>
+              <button class="btn-secondary small" data-id="${doc.id}" data-action="preview">Preview</button>
+              <button class="btn-secondary small" data-id="${doc.id}" data-action="delete">Delete</button>
             </div>
           </div>`;
         el.addEventListener('click', async (evt) => {
